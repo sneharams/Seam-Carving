@@ -1,0 +1,75 @@
+WindowManager:
+    MainWindow:
+    CameraWindow:
+    ImageSelectionWindow:
+    EditorWindow:
+
+<MainWindow>:
+    name: 'MainWindow'
+
+    BoxLayout:
+        Button:
+            text: 'Camera'
+            on_release:
+                app.root.current = 'CameraWindow'
+                root.manager.transition.direction = 'left'
+
+        Button:
+            text: 'Photos'
+            on_release:
+                app.root.current = 'ImageSelectionWindow'
+                root.manager.transition.direction = 'left'
+
+<CameraWindow>
+    name: 'CameraWindow'
+
+    Button:
+        text: 'Go back'
+        on_release:
+            app.root.current = 'MainWindow'
+            root.manager.transition.direction = 'right'
+
+<ImageSelectionWindow>
+    name: 'ImageSelectionWindow'
+
+    FileChooserIconView:
+        on_selection:
+            root.select_image(*args)
+            app.root.current = 'EditorWindow'
+            root.manager.transition.direction = 'left'
+
+<EditorWindow>
+    name: 'EditorWindow'
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        Image:
+            id: image
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 100
+
+            Button:
+                text: '+'
+                on_release:
+                    root.show_plus_popup()
+            Button:
+                text: '-'
+            Button:
+                text: 'Resize'
+            Button:
+                text: 'Save'
+
+<PlusPopup>
+    name: 'PlusPopup'
+
+    Button:
+        text: '1'
+    Button:
+        text: '2'
+    Button:
+        text: '3'
+    Button:
+        text: '4'
