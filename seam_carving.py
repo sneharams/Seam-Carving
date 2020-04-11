@@ -142,6 +142,7 @@ class Image():
 
         self.__check_rep()
 
+
     def __get_pixel(self, row, col):
         
         if row >= self.__height:
@@ -155,6 +156,7 @@ class Image():
             col = 0
 
         return self.__pixels_gray_2D[row][col]
+
 
     def __get_cum_energy(self):
         cum_energy_map = list()
@@ -170,12 +172,8 @@ class Image():
 
         energy_row = list()
         cum_energy_row = list()
-        # calculates final pixels for results based on resultX and resultY (Ox and Oy) pixel map
-        # print(len(resultX))
-        # print(len(self.__pixels_gray_2D))
-        # print(len(resultX[0]))
-        for c in range(len(self.__pixels_gray_2D[0])):
-            
+
+        for c in range(len(self.__pixels_gray_2D[0])):     
             energy = math.sqrt(resultX[0][c]**2 + resultY[0][c]**2)
             cum_energy_row.append(energy)
             energy_row.append(energy)
@@ -190,14 +188,16 @@ class Image():
             for c in range(self.__width):
                 # find adj pixel range
                 low = max(0, c-1)
-                high = min(len(self.__pixels_gray_2D)-1, c+1)
+                high = min(len(self.__pixels_gray_2D), c+2)
                 # calc energy for pixel
                 energy = math.sqrt(resultX[r][c]**2 + resultY[r][c]**2)
                 energy_row.append(energy)
                 # calc cummulative energy for pixel
-                cum_energy_row.append(energy)
-                for i in range(low, high+1):
-                    cum_energy_row[-1] += cum_energy_map[r-1][i]
+                min_energy = cum_energy_map[r-1][low]
+                for i in range(low+1, high):
+                    if cum_energy_map[r-1][i] < min_energy:
+                        min_energy = cum_energy_map[r-1][i]
+                cum_energy_row.append(energy + min_energy)
             # update maps
             energy_map.append(energy_row)
             cum_energy_map.append(cum_energy_row)
@@ -269,9 +269,12 @@ class Image():
                 self.__cum_energy_map[r][c] = energy
                 self.__energy_map[r][c] = energy
 
+                min_energy = self.__cum_energy_map[r-1][low]
                 # calc cummulative energy for pixel
-                for i in range(low, high):
-                    self.__cum_energy_map[r][c] += self.__cum_energy_map[r-1][i]
+                for i in range(low+1, high):
+                    if self.__cum_energy_map[r-1][i] < min_energy:
+                        min_energy = self.__cum_energy_map[r-1][i]
+                self.__cum_energy_map[r][c] += min_energy
 
             # makes sure removed pixel wasn't furthest left column
             if c-1 >= 0:
@@ -288,9 +291,12 @@ class Image():
                 self.__cum_energy_map[r][c-1] = energy
                 self.__energy_map[r][c-1] = energy
 
+                min_energy = self.__cum_energy_map[r-1][low]
                 # calc cummulative energy for pixel
-                for i in range(low, high):
-                    self.__cum_energy_map[r][c-1] += self.__cum_energy_map[r-1][i]
+                for i in range(low+1, high):
+                    if self.__cum_energy_map[r-1][i] < min_energy:
+                        min_energy = self.__cum_energy_map[r-1][i]
+                self.__cum_energy_map[r][c-1] += min_energy
 
     def remove_vertical_seams(self, num):
         for _ in range(num):
@@ -365,7 +371,7 @@ class Image():
 
 if __name__ == '__main__':
     carv = Carver('test_images/cats.png')
-    carv.remove_vertical_seams(30)
-    carv.save_image('result_images/cats.png')
+    carv.remove_vertical_seams(60)
+    carv.save_image('result_images/cats60.png')
 
     
