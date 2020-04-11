@@ -226,77 +226,57 @@ class Image():
         self.__update_maps(seam_indices)
 
     def __update_maps(self, seam_indices):
-        # Kx and Ky kernels
-        kernelX = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
-        kernelY = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
 
-        seam_indices.reverse() # go from top to bottom of image
+        self.__energy_map, self.__cum_energy_map = self.__get_cum_energy()
+        
+        # # Kx and Ky kernels
+        # kernelX = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
+        # kernelY = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
 
-        # first row update
-        c = seam_indices[0]
-        # makes sure removed pixel wasn't furthest right column
-        if c < len(self.__pixels[0]):
-            oX = self.__get_new_pixel(kernelX, 0, c)
-            oY = self.__get_new_pixel(kernelY, 0, c)
-            energy = math.sqrt(oX**2 + oY**2)
-            self.__cum_energy_map[0][c] = energy
-            self.__energy_map[0][c] = energy
+        # seam_indices.reverse() # go from top to bottom of image
 
-        # makes sure removed pixel wasn't furthest left column
-        if c-1 >= 0:
-            oX = self.__get_new_pixel(kernelX, 0, c-1)
-            oY = self.__get_new_pixel(kernelY, 0, c-1)
-            energy = math.sqrt(oX**2 + oY**2)
-            self.__cum_energy_map[0][c-1] = energy
-            self.__energy_map[0][c-1] = energy
+        # # first row update
+        # c = seam_indices[0]
+        # # makes sure removed pixel wasn't furthest right column
+        # left = max(0, c-2)
+        # right = min(c+3, self.__width)
+        # for adj in range(left, right):
+        #     oX = self.__get_new_pixel(kernelX, 0, adj)
+        #     oY = self.__get_new_pixel(kernelY, 0, adj)
+        #     energy = math.sqrt(oX**2 + oY**2)
+        #     self.__cum_energy_map[0][adj] = energy
+        #     self.__energy_map[0][adj] = energy
 
-        # update rest of rows
-        for r in range(1, len(self.__pixels)):
-            c = seam_indices[r]
+        # # update rest of rows
+        # for r in range(1, len(self.__pixels)):
+        #     c = seam_indices[r]
 
-            # makes sure removed pixel wasn't furthest right column
-            if c < len(self.__pixels[0]):
-                # get Ox and Oy values for pixels next to removed seam
-                oX = self.__get_new_pixel(kernelX, r, c)
-                oY = self.__get_new_pixel(kernelY, r, c)
-                energy = math.sqrt(oX**2 + oY**2)
+        #     left = max(0, c-2)
+        #     right = min(c+3, self.__width)
 
-                # find adj pixel range
-                low = max(0, c-1)
-                high = min(len(self.__pixels_gray_2D[0]), c+2)
+        #     for adj in range(left, right):
+        #         # get Ox and Oy values for pixels next to removed seam
+        #         oX = self.__get_new_pixel(kernelX, 0, adj)
+        #         oY = self.__get_new_pixel(kernelY, 0, adj)
+        #         energy = math.sqrt(oX**2 + oY**2)
+        #         self.__cum_energy_map[r][adj] = energy
+        #         self.__energy_map[r][adj] = energy
 
-                # calc energy for pixel
-                self.__cum_energy_map[r][c] = energy
-                self.__energy_map[r][c] = energy
+        #         # find adj pixel range
+        #         low = max(0, adj-1)
+        #         high = min(len(self.__pixels_gray_2D[0]), adj+2)
 
-                min_energy = self.__cum_energy_map[r-1][low]
-                # calc cummulative energy for pixel
-                for i in range(low+1, high):
-                    if self.__cum_energy_map[r-1][i] < min_energy:
-                        min_energy = self.__cum_energy_map[r-1][i]
-                self.__cum_energy_map[r][c] += min_energy
+        #         # calc energy for pixel
+        #         self.__cum_energy_map[r][adj] = energy
+        #         self.__energy_map[r][adj] = energy
 
-            # makes sure removed pixel wasn't furthest left column
-            if c-1 >= 0:
-                # get Ox and Oy values for pixels next to removed seam
-                oX = self.__get_new_pixel(kernelX, r, c-1)
-                oY = self.__get_new_pixel(kernelY, r, c-1)
-                energy = math.sqrt(oX**2 + oY**2)
+        #         min_energy = self.__cum_energy_map[r-1][low]
+        #         # calc cummulative energy for pixel
+        #         for i in range(low+1, high):
+        #             if self.__cum_energy_map[r-1][i] < min_energy:
+        #                 min_energy = self.__cum_energy_map[r-1][i]
+        #         self.__cum_energy_map[r][adj] += min_energy
 
-                # find adj pixel range
-                low = max(0, c-2)
-                high = min(len(self.__pixels_gray_2D[0]), c+1)
-
-                # calc energy for pixel
-                self.__cum_energy_map[r][c-1] = energy
-                self.__energy_map[r][c-1] = energy
-
-                min_energy = self.__cum_energy_map[r-1][low]
-                # calc cummulative energy for pixel
-                for i in range(low+1, high):
-                    if self.__cum_energy_map[r-1][i] < min_energy:
-                        min_energy = self.__cum_energy_map[r-1][i]
-                self.__cum_energy_map[r][c-1] += min_energy
 
     def remove_vertical_seams(self, num):
         for _ in range(num):
