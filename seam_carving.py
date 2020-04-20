@@ -218,6 +218,7 @@ class Image():
             seam_indices.append(lowest_index)
             low = max(lowest_index-1, 0)
             high = min(lowest_index+2, self.__width)
+            # remove pixel at that row
             del self.__cum_energy_map[r][lowest_index]
             del self.__energy_map[r][lowest_index]
             del self.__pixels_gray_2D[r][lowest_index]
